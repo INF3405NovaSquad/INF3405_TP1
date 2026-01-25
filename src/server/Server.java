@@ -43,8 +43,8 @@ public class Server {
 			listener.setReuseAddress(true);
             InetAddress serverIP = InetAddress.getByName(ip);
             // Association de l'adresse et du port à la connexien
-            listener.bind(new InetSocketAddress(ip, serverPort));
-            System.out.format("Serveur en écoute sur %s:%d%n", ip, serverPort);
+            listener.bind(new InetSocketAddress(serverIP, serverPort));
+            System.out.format("Serveur en écoute sur %s:%d%n", serverIP, serverPort);
             
             while(true) {
             	// Important : la fonction accept() est bloquante: attend qu'un prochain client se connecte

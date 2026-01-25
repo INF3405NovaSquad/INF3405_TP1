@@ -1,6 +1,7 @@
 package client;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.Socket;
 import java.io.IOException;
 import java.util.Scanner;
@@ -41,6 +42,28 @@ public class Client {
         	System.out.format("Serveur lancé sur [%s:%d]", ip, portClient);
         	// Création d'un canal entrant pour recevoir les messages envoyés, par le serveur
     		DataInputStream in = new DataInputStream(socket.getInputStream());
+    		DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+    		
+    		System.out.println("Nom d'utilisateur : ");
+    		String username = scanner.nextLine();
+    		
+    		System.out.println("Mot de passe : ");
+    		String password = scanner.nextLine();
+    		
+    		out.writeUTF(username);
+    		out.writeUTF(password);
+    		
+    		String response = in.readUTF();
+    		
+    		if (response.equals("OK")) {
+    			System.out.println("Connexion accepté");
+    			//envoi de l'image
+    		} else {
+    			System.out.println("Erreur dans la saisie du mot de passe");
+    			socket.close();
+    			return;
+    		}
+    		
     		// Attente de la réception d'un message envoyé par le, server sur le canal
     		String message = in.readUTF();
             System.out.println("Message du serveur : " + message);

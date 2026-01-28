@@ -39,15 +39,15 @@ public class Client {
         
         try (Socket socket = new Socket(ip, portClient)){
         	
-        	System.out.format("Serveur lancé sur [%s:%d]", ip, portClient);
+        	System.out.format("Serveur lancé sur [%s:%d]%n", ip, portClient); 
         	// Création d'un canal entrant pour recevoir les messages envoyés, par le serveur
     		DataInputStream in = new DataInputStream(socket.getInputStream());
     		DataOutputStream out = new DataOutputStream(socket.getOutputStream());
     		
-    		System.out.println("Nom d'utilisateur : ");
+    		System.out.print("Nom d'utilisateur : ");
     		String username = scanner.nextLine();
     		
-    		System.out.println("Mot de passe : ");
+    		System.out.print("Mot de passe : ");
     		String password = scanner.nextLine();
     		
     		out.writeUTF(username);
@@ -57,6 +57,10 @@ public class Client {
     		
     		if (response.equals("OK")) {
     			System.out.println("Connexion accepté");
+    			String messageConnexion = in.readUTF();
+    			
+    			System.out.println(messageConnexion);
+    			
     			
     			//envoi de l'image
     			Scanner scannerImage = new Scanner(System.in);
@@ -87,17 +91,17 @@ public class Client {
     			
     			System.out.println("Image envoyée pour traitement...");
     			
-    			//int processedSize = in.readInt();
-    			//byte[] processedByte = new byte[processedSize];
-    			//in.readFully(processedByte);
+    			int processedSize = in.readInt();
+    			byte[] processedByte = new byte[processedSize];
+    			in.readFully(processedByte);
     			
     			java.io.File outFile = new java.io.File(processedName);
-    			//try(java.io.FileOutputStream f_out = new java.io.FileOutputStream(outFile)){
-    				//f_out.write(processedByte);
-    			//}
+    			try(java.io.FileOutputStream f_out = new java.io.FileOutputStream(outFile)){
+    				f_out.write(processedByte);
+    			}
     			
     			System.out.println("Image traitée reçue ! Emplacement : " + outFile.getAbsolutePath());
-
+    			scannerImage.close();
     			
     		} else {
     			System.out.println("Erreur dans la saisie du mot de passe");
@@ -111,7 +115,7 @@ public class Client {
             
         } catch (IOException e) {
         	
-            System.out.println("Impossible de se connecter au serveur : " + e.getMessage());
+            System.out.println("Vous êtes déconnecté.");
         }
 		
 	}

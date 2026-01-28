@@ -13,7 +13,7 @@ public class Server {
 	public static void main(String[] args) throws Exception {
 		
 		Scanner scanner = new Scanner(System.in);
-		System.out.println("Entrez l'adresse IP du serveur : ");
+		System.out.print("Entrez l'adresse IP du serveur : ");
 		String ip = scanner.nextLine();
 		
 		if (!validator.isValidIp(ip)) {
@@ -22,7 +22,7 @@ public class Server {
 			return;
 		}
 		
-		System.out.println("Entrez le port d'écoute : ");
+		System.out.print("Entrez le port d'écoute : ");
 		String port = scanner.nextLine();
 		
 		if(!validator.isValidPort(port)) {

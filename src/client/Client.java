@@ -56,66 +56,87 @@ public class Client {
     		String response = in.readUTF();
     		
     		if (response.equals("OK")) {
-    			System.out.println("Connexion accepté");
-    			String messageConnexion = in.readUTF();
     			
-    			System.out.println(messageConnexion);
+    			System.out.println("Connexion accepté (/exit pour se déconnecter du serveur)");
+				String messageConnexion = in.readUTF();
+			
+				System.out.println(messageConnexion);
+    			
+    			while (true) {
     			
     			
-    			//envoi de l'image
-    			Scanner scannerImage = new Scanner(System.in);
+    				//envoi de l'image
+    				Scanner scannerImage = new Scanner(System.in);
     			
-    			System.out.print("Nom du fichier à envoyer (doit être dans le même dossier que l'exécutable) : ");
-    			String imagePath = scannerImage.nextLine();
-    			java.io.File file = new java.io.File(imagePath);
+    				System.out.print("Nom du fichier à envoyer (doit être dans le même dossier que l'exécutable) : ");
+    				String imagePath = scannerImage.nextLine();
+    				
+    				if(imagePath.equalsIgnoreCase("/exit")) {
+    					out.writeUTF("/exit");
+    					out.flush();
+    					System.out.println("Vous êtes déconnecté.");
+    					break;
+    				}
+    				
+    				java.io.File file = new java.io.File(imagePath);
     			
-    			if (!file.exists()) {
-    				System.out.println("Fichier introuvable.");
-    				return;
+    				if (!file.exists()) {
+    					System.out.println("Fichier introuvable.");
+    					scannerImage.close();
+    					return;
+    				}
+    			
+    				System.out.print("Nom que vous voulez donner à l'image traitée (ex: photoTraitee.png) : ");
+    				String processedName = scannerImage.nextLine();
+    				
+    				if(processedName.equalsIgnoreCase("/exit")) {
+    					out.writeUTF("/exit");
+    					out.flush();
+    					System.out.println("Vous êtes déconnecté.");
+    					break;
+    				}
+    				
+    				
+    			
+    				byte[] fileBytes = new byte[(int) file.length()];
+    				try (java.io.FileInputStream f_in = new java.io.FileInputStream(file)){
+    					f_in.read(fileBytes);
+    				}
+    			
+    				out.writeUTF(file.getName());
+    				out.writeUTF(processedName);
+    			
+    				out.writeInt(fileBytes.length);
+    				out.write(fileBytes);
+    				out.flush();
+    			
+    				System.out.println("Image envoyée pour traitement...");
+    			
+    				int processedSize = in.readInt();
+    				byte[] processedByte = new byte[processedSize];
+    				in.readFully(processedByte);
+    			
+    				java.io.File outFile = new java.io.File(processedName);
+    				try(java.io.FileOutputStream f_out = new java.io.FileOutputStream(outFile)){
+    					f_out.write(processedByte);
+    				}
+    			
+    				System.out.println("Image traitée reçue ! Emplacement : " + outFile.getAbsolutePath());
+    				
+    				// Attente de la réception d'un message envoyé par le, server sur le canal
+    	    		//String message = in.readUTF();
+    	            //System.out.println("Message du serveur : " + message);
     			}
-    			
-    			System.out.print("Nom que vous voulez donner à l'image traitée (ex: photoTraitee.png) : ");
-    			String processedName = scannerImage.nextLine();
-    			
-    			byte[] fileBytes = new byte[(int) file.length()];
-    			try (java.io.FileInputStream f_in = new java.io.FileInputStream(file)){
-    				f_in.read(fileBytes);
-    			}
-    			
-    			out.writeUTF(file.getName());
-    			out.writeUTF(processedName);
-    			
-    			out.writeInt(fileBytes.length);
-    			out.write(fileBytes);
-    			out.flush();
-    			
-    			System.out.println("Image envoyée pour traitement...");
-    			
-    			int processedSize = in.readInt();
-    			byte[] processedByte = new byte[processedSize];
-    			in.readFully(processedByte);
-    			
-    			java.io.File outFile = new java.io.File(processedName);
-    			try(java.io.FileOutputStream f_out = new java.io.FileOutputStream(outFile)){
-    				f_out.write(processedByte);
-    			}
-    			
-    			System.out.println("Image traitée reçue ! Emplacement : " + outFile.getAbsolutePath());
-    			scannerImage.close();
-    			
     		} else {
     			System.out.println("Erreur dans la saisie du mot de passe");
     			socket.close();
     			return;
     		}
     		
-    		// Attente de la réception d'un message envoyé par le, server sur le canal
-    		String message = in.readUTF();
-            System.out.println("Message du serveur : " + message);
-            
+    		
         } catch (IOException e) {
         	
-            System.out.println("Vous êtes déconnecté.");
+            System.out.println("Vous avez saisie la mauvaise adresse IP ou le mauvais port");
         }
 		
 	}

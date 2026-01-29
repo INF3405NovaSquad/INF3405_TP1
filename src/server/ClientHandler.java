@@ -40,38 +40,51 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 			out.writeUTF("OK");
 			out.writeUTF("Hello from server - you are client#" + clientNumber);
 			
-			//traitement de l'image
-			String imageName = in.readUTF();
-			String savedName = in.readUTF();
-			int imageSize = in.readInt();
-			byte[] imageBytes = new byte[imageSize];
-			in.readFully(imageBytes);
+			while (true) {
 			
-			java.io.ByteArrayInputStream image = new java.io.ByteArrayInputStream(imageBytes);
-			java.awt.image.BufferedImage imageBuff = javax.imageio.ImageIO.read(image);
+				//traitement de l'image
+				String imageName = in.readUTF();
+				
+				if(imageName.equalsIgnoreCase("/exit")) {
+					break;
+				}
+				
+				String savedName = in.readUTF();
+				
+				if(savedName.equalsIgnoreCase("/exit")) {
+					break;
+				}
+				
+				int imageSize = in.readInt();
+				byte[] imageBytes = new byte[imageSize];
+				in.readFully(imageBytes);
 			
-			java.time.LocalDateTime now = java.time.LocalDateTime.now();
-			System.out.printf("[%s - %s:%d - %04d-%02d-%02d@%02d:%02d:%02d] : Image %s reçue pour traitement.%n",
-		            username, socket.getInetAddress(), socket.getPort(), 
-		            now.getYear(), now.getMonthValue(), now.getDayOfMonth(),
-		            now.getHour(), now.getMinute(), now.getSecond(),
-		            imageName
-		        );
+				java.io.ByteArrayInputStream image = new java.io.ByteArrayInputStream(imageBytes);
+				java.awt.image.BufferedImage imageBuff = javax.imageio.ImageIO.read(image);
+			
+				java.time.LocalDateTime now = java.time.LocalDateTime.now();
+				System.out.printf("[%s - %s:%d - %04d-%02d-%02d@%02d:%02d:%02d] : Image %s reçue pour traitement.%n",
+		            	username, socket.getInetAddress(), socket.getPort(), 
+		            	now.getYear(), now.getMonthValue(), now.getDayOfMonth(),
+		            	now.getHour(), now.getMinute(), now.getSecond(),
+		            	imageName
+					);
 		
-			imageBuff = Sobel.process(imageBuff);
+				imageBuff = Sobel.process(imageBuff);
 			
-			javax.imageio.ImageIO.write(imageBuff, "png", new java.io.File(savedName));
+				javax.imageio.ImageIO.write(imageBuff, "png", new java.io.File(savedName));
 			
-			java.io.ByteArrayOutputStream imageClient = new java.io.ByteArrayOutputStream();
-			javax.imageio.ImageIO.write(imageBuff, "png", imageClient);
+				java.io.ByteArrayOutputStream imageClient = new java.io.ByteArrayOutputStream();
+				javax.imageio.ImageIO.write(imageBuff, "png", imageClient);
 			
-			byte[] processedBytes = imageClient.toByteArray();
+				byte[] processedBytes = imageClient.toByteArray();
 			
-			out.writeInt(processedBytes.length);
-			out.write(processedBytes);
-			out.flush();
+				out.writeInt(processedBytes.length);
+				out.write(processedBytes);
+				out.flush();
 			
-			System.out.println("Image traitée et renvoyée au client : " + username);
+				System.out.println("Image traitée et renvoyée au client : " + username);
+			}
 			
 		} catch (IOException e) {
 			System.out.println("Error handling client# " + clientNumber + ": " + e);

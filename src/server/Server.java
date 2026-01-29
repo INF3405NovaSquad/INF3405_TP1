@@ -35,7 +35,7 @@ public class Server {
 		System.out.println("Paramètres valides. Démarrage du serveur...");
 		
 		// Compteur incrémenté à chaque connexion d'un client au serveur
-		int clientNumber = 0;
+		int clientNumber = 1;
 		
 		try (ServerSocket listener = new ServerSocket()){
 			// Création de la connexien pour communiquer ave les, clients
